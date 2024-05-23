@@ -1,2 +1,2 @@
 # Uni
-Uni's porjects
+Uni's projects
