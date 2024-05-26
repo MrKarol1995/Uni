@@ -38,7 +38,7 @@ def read_qr_code(file_name):
         return None
 
 
-text = "nigas in paris"
+text = "nik in paris"
 qr_file_name = "ale3k.jpg"
 qqr = "kod2.jpg"
 
