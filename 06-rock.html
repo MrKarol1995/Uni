@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rock Paper</title>
+  </head>
+  <body>
+    <p>Rock Papier Scissors</p>
+    <button onclick="
+    const m = Math.random();
+    let com = '';
+
+    if (m >=0 && m <1/3){
+      com = 'Rock';
+    } else if(m > 1/3 && m < 2/3) {
+      com = 'Paper';
+    } else if (m >= 2/3 && m <1){
+      com = 'Scissors';
+    }
+
+  
+    let rem = ''
+    if(com === 'Rock'){
+      rem = 'Tie. ';
+    }else if(com === 'Paper'){
+      rem = 'You Loose. ';
+
+    } else if (com === 'Scissors'){
+      rem = 'You Win. ';
+    }
+    alert(`You picked rock. Computer picked ${com}. ${rem}.`);
+    ">Rock</button>
+    <button onclick="
+    const m = Math.random();
+    let com = '';
+
+    if (m >=0 && m <1/3){
+      com = 'Rock';
+    } else if(m > 1/3 && m < 2/3) {
+      com = 'Paper';
+    } else if (m >= 2/3 && m <1){
+      com = 'Scissors';
+    }
+
+  
+    let rem = ''
+    if(com === 'Rock'){
+      rem = 'You Win. ';
+    }else if(com === 'Paper'){
+      rem = 'Tie. ';
+
+    } else if (com === 'Scissors'){
+      rem = 'You Lose. ';
+    }
+    alert(`You picked paper. Computer picked ${com}. ${rem}`);
+    ">Paper</button>
+
+    <button onclick="
+    
+    const m = Math.random();
+    let com = '';
+
+    if (m >=0 && m <1/3){
+      com = 'Rock';
+    } else if(m > 1/3 && m < 2/3) {
+      com = 'Paper';
+    } else if (m >= 2/3 && m <1){
+      com = 'Scissors';
+    }
+
+  
+    let rem = ''
+    if(com === 'Rock'){
+      rem = 'You Lose. ';
+    }else if(com === 'Paper'){
+      rem = 'You Win. ';
+
+    } else if (com === 'Scissors'){
+      rem = 'Tie. ';
+    }
+    alert(`You picked Scissors. Computer picked ${com}. ${rem}`);
+    
+    ">Scissors</button>
+    <script>
+    </script>
+  </body>
+</html>
