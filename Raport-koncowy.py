@@ -10,7 +10,6 @@ from scipy.stats import arcsine
 
 # Zad1 (z listy 3)
 
-
 # Funkcja podcałkowa
 def f(x: np.ndarray) -> np.ndarray:
     """
@@ -23,7 +22,6 @@ def f(x: np.ndarray) -> np.ndarray:
         np.ndarray: Oblicza wartość funkcji: 4 / (1 + x**2).
     """
     return 4 / (1 + x**2)
-
 
 # Monte Carlo klasyczna
 def monte_carlo_basic(n: int) -> float:
@@ -39,7 +37,6 @@ def monte_carlo_basic(n: int) -> float:
     x = np.random.uniform(0, 1, n)
     return np.mean(f(x))
 
-
 # Metoda odbić lustrzanych
 def monte_carlo_antithetic(n):
     """
@@ -54,7 +51,6 @@ def monte_carlo_antithetic(n):
     x = np.random.uniform(0, 1, n // 2)
     y = 1 - x
     return np.mean((f(x) + f(y)) / 2)
-
 
 # Metoda zmiennej kontrolnej (użyjemy funkcji liniowej jako zmiennej kontrolnej)
 def monte_carlo_control_variate(n: int) -> float:
@@ -73,7 +69,6 @@ def monte_carlo_control_variate(n: int) -> float:
     y = f(x)
     alpha = np.cov(y, control_variate)[0, 1] / np.var(control_variate)
     return np.mean(y - alpha * (control_variate - mean_control_variate))
-
 
 # Wielkość próby:
 n = 100000
