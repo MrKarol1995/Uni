@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 from scipy.stats import arcsine
 
 
-# Zad1 (z listy 3)
-
 # Funkcja podcałkowa
 def f(x: np.ndarray) -> np.ndarray:
     """
@@ -23,8 +21,9 @@ def f(x: np.ndarray) -> np.ndarray:
     """
     return 4 / (1 + x**2)
 
+
 # Monte Carlo klasyczna
-def monte_carlo_basic(n: int) -> float:
+def monte_carlo_basic(n: int) -> np.ndarray:
     """
     Monte Carlo całkowanie bez "redukcji wariancji."
 
@@ -37,8 +36,9 @@ def monte_carlo_basic(n: int) -> float:
     x = np.random.uniform(0, 1, n)
     return np.mean(f(x))
 
+
 # Metoda odbić lustrzanych
-def monte_carlo_antithetic(n):
+def monte_carlo_antithetic(n: int) -> np.ndarray:
     """
      Całkowanie Monte Carlo przy użyciu: antithetic variates method.
 
@@ -52,8 +52,9 @@ def monte_carlo_antithetic(n):
     y = 1 - x
     return np.mean((f(x) + f(y)) / 2)
 
+
 # Metoda zmiennej kontrolnej (użyjemy funkcji liniowej jako zmiennej kontrolnej)
-def monte_carlo_control_variate(n: int) -> float:
+def monte_carlo_control_variate(n: int) -> np.ndarray:
     """
     Monte Carlo integration using control variates method.
 
@@ -69,6 +70,7 @@ def monte_carlo_control_variate(n: int) -> float:
     y = f(x)
     alpha = np.cov(y, control_variate)[0, 1] / np.var(control_variate)
     return np.mean(y - alpha * (control_variate - mean_control_variate))
+
 
 # Wielkość próby:
 n = 100000
@@ -89,33 +91,138 @@ exact_value = np.pi
 # Liczby prób
 n_values = [10, 100, 200, 1000, 5000, 10000, 100000]
 
-# Wyniki i błędy
-results = []
-errors = []
+# Wyniki i błędy dla każdej z metod
+basic_results = []
+antithetic_results = []
+control_variate_results = []
+
+basic_errors = []
+antithetic_errors = []
+control_variate_errors = []
 
 for n in n_values:
-    result = monte_carlo_basic(n)
-    error = np.abs(result - exact_value)
-    results.append(result)
-    errors.append(error)
+    basic_result = monte_carlo_basic(n)
+    antithetic_result = monte_carlo_antithetic(n)
+    control_variate_result = monte_carlo_control_variate(n)
 
+    basic_error = np.abs(basic_result - exact_value)
+    antithetic_error = np.abs(antithetic_result - exact_value)
+    control_variate_error = np.abs(control_variate_result - exact_value)
 
-# Wykres błędu
-plt.figure(figsize=(10, 6))
-plt.plot(n_values, errors, marker="o")
+    basic_results.append(basic_result)
+    antithetic_results.append(antithetic_result)
+    control_variate_results.append(control_variate_result)
+
+    basic_errors.append(basic_error)
+    antithetic_errors.append(antithetic_error)
+    control_variate_errors.append(control_variate_error)
+
+# Wykresy błędów
+plt.figure(figsize=(12, 8))
+
+plt.plot(n_values, basic_errors, marker="o", label="Monte Carlo Basic")
+plt.plot(n_values, antithetic_errors, marker="s", label="Antithetic Variates")
+plt.plot(n_values, control_variate_errors, marker="^", label="Control Variates")
+
 plt.xscale("log")
 plt.yscale("log")
 plt.xlabel("Liczba prób")
 plt.ylabel("Błąd")
 plt.title("Analiza błędu względem ilości symulacji")
-plt.grid(True)
+plt.legend()
+plt.grid(linestyle="--")
 plt.show()
 
-# Tabela wyników
+# Wariancje dla każdej z metod
+basic_variance = [np.var([monte_carlo_basic(n) for _ in range(100)]) for n in n_values]
+antithetic_variance = [
+    np.var([monte_carlo_antithetic(n) for _ in range(100)]) for n in n_values
+]
+control_variate_variance = [
+    np.var([monte_carlo_control_variate(n) for _ in range(100)]) for n in n_values
+]
+
+# Wykresy wariancji
+plt.figure(figsize=(12, 8))
+
+plt.plot(n_values, basic_variance, marker="o", label="Monte Carlo Basic")
+plt.plot(n_values, antithetic_variance, marker="s", label="Antithetic Variates")
+plt.plot(n_values, control_variate_variance, marker="^", label="Control Variates")
+
+plt.xscale("log")
+plt.yscale("log")
+plt.xlabel("Liczba prób")
+plt.ylabel("Wariancja")
+plt.title("Analiza wariancji względem ilości symulacji")
+plt.legend()
+plt.grid(linestyle="--")
+plt.show()
+
+# Generowanie wyników dla histogramów
+sample_size = 1000
+basic_samples = [monte_carlo_basic(n) for _ in range(sample_size)]
+antithetic_samples = [monte_carlo_antithetic(n) for _ in range(sample_size)]
+control_variate_samples = [monte_carlo_control_variate(n) for _ in range(sample_size)]
+
+plt.hist(basic_samples, label="Monte Carlo", bins=50, alpha=0.3, density=True)
+plt.hist(
+    antithetic_samples, label="Antithetic Variance", bins=50, alpha=0.3, density=True
+)
+plt.hist(
+    control_variate_samples, label="Control Variance", bins=50, alpha=0.3, density=True
+)
+plt.legend(loc="best")
+plt.title("Histogram wyników symulacji każdej z metod")
+plt.axvline(
+    x=np.pi,
+    color="r",
+    linestyle="--",
+    linewidth=2,
+    label="Wartość teoretyczna liczby pi",
+)
+plt.grid(linestyle="--")
+plt.show()
+
+# Rysowanie boxplotów
+
+plt.boxplot(
+    [basic_samples, antithetic_samples, control_variate_samples],
+    labels=["Monte Carlo", "Antithetic", "Control Variate"],
+)
+plt.axhline(exact_value, color="r", linestyle="dashed", linewidth=1)
+plt.title("Boxploty dla różnych metod Monte Carlo")
+plt.xlabel("Metoda")
+plt.ylabel("Wynik")
+plt.grid(linestyle="--")
+plt.show()
+
+# Tabela wyników i błędów
 print(" ")
-print(f"{'Liczba prób':<15} {'Wynik':<15} {'Błąd':<15}")
-for n, result, error in zip(n_values, results, errors):
-    print(f"{n:<15} {result:<15.10f} {error:<15.10f}")
+print(
+    f"{'Liczba prób':<15} {'Wynik (Basic)':<15} {'Błąd (Basic)':<15} {'Wynik (Antithetic)':<20} "
+    f"{'Błąd (Antithetic)':<20} {'Wynik (Control Variate)':<25} {'Błąd (Control Variate)':<25}"
+)
+for (
+    n,
+    basic_result,
+    basic_error,
+    antithetic_result,
+    antithetic_error,
+    control_variate_result,
+    control_variate_error,
+) in zip(
+    n_values,
+    basic_results,
+    basic_errors,
+    antithetic_results,
+    antithetic_errors,
+    control_variate_results,
+    control_variate_errors,
+):
+    print(
+        f"{n:<15} {basic_result:<15.10f} {basic_error:<15.10f} {antithetic_result:<20.10f}"
+        f" {antithetic_error:<20.10f} {control_variate_result:<25.10f} {control_variate_error:<25.10f}"
+    )
 
 
 # zad2 (z listy 6)
@@ -183,6 +290,7 @@ x = np.linspace(0, 1, 100)
 axs[0, 0].plot(x, arcsine.pdf(x), "r-", lw=2, label="Teoretyczny")
 axs[0, 0].set_title("Histogram T_+")
 axs[0, 0].legend()
+axs[0, 0].grid(linestyle="--")
 
 # Dystrybuanty dla T_+
 axs[0, 1].hist(
@@ -197,12 +305,14 @@ axs[0, 1].hist(
 axs[0, 1].plot(x, arcsine.cdf(x), "r-", lw=2, label="Teoretyczny")
 axs[0, 1].set_title("Dystrybuanta empiryczna T_+")
 axs[0, 1].legend()
+axs[0, 1].grid(linestyle="--")
 
 # Histogram dla L
 axs[1, 0].hist(L, bins=50, density=True, alpha=0.6, color="coral", label="Empiryczny")
 axs[1, 0].plot(x, arcsine.pdf(x), "r-", lw=2, label="Teoretyczny")
 axs[1, 0].set_title("Histogram L")
 axs[1, 0].legend()
+axs[1, 0].grid(linestyle="--")
 
 # Dystrybuanty dla L
 axs[1, 1].hist(
@@ -217,12 +327,14 @@ axs[1, 1].hist(
 axs[1, 1].plot(x, arcsine.cdf(x), "r-", lw=2, label="Teoretyczny")
 axs[1, 1].set_title("Dystrybuanta empiryczna L")
 axs[1, 1].legend()
+axs[1, 1].grid(linestyle="--")
 
 # Histogram dla M
 axs[2, 0].hist(M, bins=50, density=True, alpha=0.6, color="coral", label="Empiryczny")
 axs[2, 0].plot(x, arcsine.pdf(x), "r-", lw=2, label="Teoretyczny")
 axs[2, 0].set_title("Histogram M")
 axs[2, 0].legend()
+axs[2, 0].grid(linestyle="--")
 
 # Dystrybuanty dla M
 axs[2, 1].hist(
@@ -237,6 +349,7 @@ axs[2, 1].hist(
 axs[2, 1].plot(x, arcsine.cdf(x), "r-", lw=2, label="Teoretyczny")
 axs[2, 1].set_title("Dystrybuanta empiryczna M")
 axs[2, 1].legend()
+axs[2, 1].grid(linestyle="--")
 
 plt.tight_layout()
 plt.show()
