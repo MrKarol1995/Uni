@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as stats
 
 
 def gestosc_normal(x: float) -> float:
@@ -24,17 +25,20 @@ def tuzin(N: int, mi: int = 0, sigma: int = 1) -> float:
         float: Liczba z rozkładu normalnego o zadanej średniej mi i odchyleniu standardowym sigma.
 
     """
-    U = [np.random.uniform() for i in range(12)]
+    U = [np.random.uniform() for _ in range(12)]
     X = np.sum(U) - 6
-    m = 6 % 2
-    Y = X * sigma + m
+    Y = X * sigma + mi
     return Y
 
 
+# Parametry rozkładu
 mi = 0
 sigma = 1
+
+# Generowanie próbek
 samples_tuzin = [tuzin(1000) for _ in range(10000)]
 
+# Histogram próbek
 plt.hist(
     samples_tuzin,
     bins=60,
@@ -42,7 +46,7 @@ plt.hist(
     alpha=0.7,
     color="olive",
     edgecolor="black",
-    label="Histogram prónkowy",
+    label="Histogram próbek",
 )
 x = np.linspace(-5, 5, 1000)
 plt.plot(x, gestosc_normal(x), color="red", label="Gęstość teoretyczna")
@@ -51,24 +55,20 @@ plt.legend()
 plt.grid(linestyle="--")
 plt.show()
 
-
-def generate(pdf, x_values):
-    dx = x_values[1] - x_values[0]
-    cdf = np.cumsum(pdf) * dx  # Wyznaczanie skumulowanej dystrybuanty
-    return cdf
-
-
-pdf = (
-    1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-((x - mi) ** 2) / (2 * sigma**2))
-)  # PDF rozkładu normalnego
-cdf = generate(samples_tuzin, x)
-
-
-# Wykres histogramu próbek
-plt.plot(cdf, color="r", label="CDF")
-plt.title("Dystrybuanta")
+# Dystrybuanta empiryczna vs teoretyczna
+samples_sorted = np.sort(samples_tuzin)
+ecdf = np.arange(1, len(samples_sorted) + 1) / len(samples_sorted)
+plt.step(samples_sorted, ecdf, label="Dystrybuanta empiryczna")
+plt.plot(x, stats.norm.cdf(x), color="red", label="Dystrybuanta teoretyczna")
+plt.title("Porównanie dystrybuant")
 plt.xlabel("Wartość")
-plt.ylabel("Gęstość")
+plt.ylabel("Dystrybuanta")
 plt.legend()
+plt.grid(linestyle="--")
+plt.show()
+
+# QQ-plot
+stats.probplot(samples_tuzin, dist="norm", plot=plt)
+plt.title("Wykres kwantylowy (QQ-plot)")
 plt.grid(linestyle="--")
 plt.show()
